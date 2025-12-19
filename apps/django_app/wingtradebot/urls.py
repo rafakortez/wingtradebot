@@ -1,5 +1,5 @@
 """
-URL configuration for wingtradebot project.
+URL configuration for wingbot project.
 """
 from django.contrib import admin
 from django.urls import path, include

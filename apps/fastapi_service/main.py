@@ -198,7 +198,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="WingTradeBot SimpleFX API Service",
+    title="WingBot SimpleFX API Service",
     description="FastAPI service for SimpleFX broker integration",
     version="1.0.0",
     lifespan=lifespan

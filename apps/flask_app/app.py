@@ -1,4 +1,4 @@
-"""Flask application for WingTradeBot dashboard"""
+"""Flask application for WingBot dashboard"""
 import sys
 import os
 import asyncio

@@ -1,5 +1,5 @@
 """
-ASGI config for wingtradebot project.
+ASGI config for wingbot project.
 """
 import os
 from django.core.asgi import get_asgi_application

@@ -1,3 +1,3 @@
-# Django application for WingTradeBot dashboard
+# Django application for WingBot dashboard
 
 

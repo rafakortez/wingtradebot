@@ -1,3 +1,3 @@
-# Shared code module for WingTradeBot Python apps
+# Shared code module for WingBot Python apps
 
 

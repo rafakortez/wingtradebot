@@ -1,4 +1,4 @@
-# WingTradeBot
+# WingBot
 
 Automated trading bot system integrating SimpleFX broker API with TradingView webhooks. Multi-framework implementation featuring FastAPI, Flask, and Django.
 

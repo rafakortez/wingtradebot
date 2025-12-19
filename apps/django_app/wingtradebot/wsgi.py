@@ -1,5 +1,5 @@
 """
-WSGI config for wingtradebot project.
+WSGI config for wingbot project.
 """
 import os
 from django.core.wsgi import get_wsgi_application

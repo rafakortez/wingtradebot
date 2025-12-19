@@ -1,4 +1,4 @@
-"""Configuration module for WingTradeBot Python apps"""
+"""Configuration module for WingBot Python apps"""
 import os
 from typing import List
 
