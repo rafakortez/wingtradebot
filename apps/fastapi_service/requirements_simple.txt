@@ -1,0 +1,7 @@
+# Versão simplificada sem pydantic-core que precisa compilar
+fastapi
+uvicorn[standard]
+httpx
+python-dotenv
+
+

@@ -4,12 +4,7 @@
   "description": "Automated trading bot for SimpleFX integration with TradingView webhooks",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "ts-node src/server.ts",
-    "build": "tsc",
-    "start": "pm2 start dist/server.js --name wingtradebot",
-    "stop": "pm2 stop wingtradebot",
-    "restart": "pm2 restart wingtradebot",
-    "logs": "pm2 logs wingtradebot"
+    "_deprecated": "TypeScript code is DEPRECATED. All functionality migrated to Python in shared/ folder. Use scripts/setup/START_FLASK.bat or START_DJANGO.bat instead."
   },
   "dependencies": {
     "express": "^4.18.2",
