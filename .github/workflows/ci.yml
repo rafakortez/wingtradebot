@@ -1,0 +1,46 @@
+name: CI/CD Pipeline - WingTradeBot
+
+# 1. GATILHOS: Quando isso vai rodar?
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+# 2. JOBS: Os trabalhos que vamos executar
+jobs:
+  build-and-test:
+    name: Build & Test
+    # O GitHub levanta a máquina mais recente do Ubuntu na nuvem deles para nós:
+    runs-on: ubuntu-latest
+
+    # 3. STEPS: O passo a passo que a máquina do Github vai fazer
+    steps:
+      # Passo 1: O Github não tem seu código. Essa action "puxa" o seu código pro servidor deles.
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+
+      # Passo 2: O Ubuntu deles vem pelado. Precisamos mandar instalar o Node.js
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Versão estável do Node
+          cache: 'npm'       # Faz cache dos pacotes pra acelerar a pipeline no futuro
+
+      # Passo 3: Agora que tem Node e Código, instalamos os pacotes.
+      # Usamos npm ci (clean install) pois ele obedece o package-lock.json estritamente, ideal pra esteiras.
+      - name: Instalar Dependências
+        run: npm ci
+
+      # Passo 4 (Linter Checks): Como usamos Typescript, vamos garantir que ele compila sem erros (Basic Linter check)
+      - name: Validar TypeScript (Linter / Build Check)
+        run: npx tsc --noEmit
+
+      # Passo 5: Rodar os testes que criamos! Unitários e de Integração
+      - name: Run Unit Tests & Container/DB Tests
+        run: npm test
+
+      # Passo 6: Cria a imagem docker provando que seu Dockerfile funciona
+      - name: Build Docker Image
+        run: docker build -t wingtradebot:test .
+        
