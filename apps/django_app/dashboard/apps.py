@@ -6,3 +6,4 @@ class DashboardConfig(AppConfig):
     name = 'dashboard'
 
 
+

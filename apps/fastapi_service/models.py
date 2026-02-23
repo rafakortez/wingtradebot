@@ -39,3 +39,4 @@ class TradeResponse(BaseModel):
     success: bool = True
 
 
+

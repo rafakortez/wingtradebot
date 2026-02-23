@@ -1,0 +1,29 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "sourceMap": false,
+    "declaration": false,
+    "removeComments": true,
+    "noEmitOnError": false,
+    "skipLibCheck": true,
+    "incremental": false
+  },
+  "exclude": [
+    "node_modules", 
+    "dist", 
+    "logs", 
+    "public", 
+    "ssl", 
+    "docs",
+    "*.test.ts", 
+    "test-*.ts",
+    "*.log",
+    "*.db",
+    "*.sh",
+    "check-memory.ts",
+    "emergency-memory-cleanup.sh",
+    "manage-memory.sh",
+    "ecosystem.config.js",
+    "src/utils/apiTester.ts"
+  ]
+}

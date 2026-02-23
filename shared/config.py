@@ -1,6 +1,9 @@
 """Configuration module for WingBot Python apps"""
 import os
 from typing import List
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Config:
     """Application configuration"""

@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+      "target": "es6",
+      "module": "commonjs",
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "strict": false,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "resolveJsonModule": true,
+      "removeComments": true,
+      "sourceMap": false,
+      "declaration": false,
+      "noEmitOnError": false
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules", 
+    "dist", 
+    "logs", 
+    "public", 
+    "ssl", 
+    "docs",
+    "*.test.ts", 
+    "test-*.ts",
+    "*.log",
+    "*.db",
+    "*.sh",
+    "check-memory.ts",
+    "emergency-memory-cleanup.sh",
+    "manage-memory.sh",
+    "ecosystem.config.js"
+  ],
+  "ts-node": {
+    "compilerOptions": {
+      "sourceMap": false,
+      "inlineSourceMap": false
+    }
+  }
+}

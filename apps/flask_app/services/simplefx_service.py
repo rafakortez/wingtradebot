@@ -42,3 +42,4 @@ class SimpleFXService:
         return await self.client.get_chart_data(symbol, timeframe, account)
 
 
+
