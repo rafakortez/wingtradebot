@@ -1,4 +1,6 @@
-﻿export function calculateDurationInMinutes(
+﻿import { config } from "./config";
+
+export function calculateDurationInMinutes(
   openTime: number,
   closeTime: number,
 ): number {
