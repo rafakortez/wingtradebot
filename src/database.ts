@@ -5,30 +5,30 @@ import { logError } from "./utils/logger"
 // Database connection
 let db: any
 
-function getPipValuee(symbol: string): number {
+export function getPipValuee(symbol: string): number {
   const cleanSymbol = symbol.replace(/^[A-Z]+:/, '').toUpperCase(); // Remove exchange prefix
-  
+
   // Index symbols use 1 point = 1 pip
-  if (cleanSymbol.includes('US100') || cleanSymbol.includes('US500') || cleanSymbol.includes('US30') || 
-      cleanSymbol.includes('GER40') || cleanSymbol.includes('UK100') || cleanSymbol.includes('NAS100') || 
-      cleanSymbol.includes('SPX500') || cleanSymbol.includes('TECH100')) {
+  if (cleanSymbol.includes('US100') || cleanSymbol.includes('US500') || cleanSymbol.includes('US30') ||
+    cleanSymbol.includes('GER40') || cleanSymbol.includes('UK100') || cleanSymbol.includes('NAS100') ||
+    cleanSymbol.includes('SPX500') || cleanSymbol.includes('TECH100')) {
     return 1;
   }
-  
+
   // JPY pairs use 0.01
   if (cleanSymbol.includes('JPY')) {
     return 0.01;
   }
-  
+
   // Default forex pairs use 0.0001
   return 0.0001;
 }
 
-export async function initializeDatabase() {  
+export async function initializeDatabase() {
 
   if (!db) {
     const dbFileName = process.env.DB_FILE || "./sfx_historical_orders.db"
-      db = await open({
+    db = await open({
       filename: dbFileName,
       driver: sqlite3.Database,
     })
@@ -135,14 +135,14 @@ export async function initializeDatabase() {
     // Run schema validation and migrations after initializing the database
     console.log('🔍 Validating database schema...')
     const validation = await validateDatabaseSchema()
-    
+
     if (!validation.isValid) {
       console.log('🔧 Running database migrations to fix schema...')
       await runDatabaseMigrations()
     } else {
       console.log('✅ Database schema validation passed')
     }
-    
+
     // Run legacy migrations for account settings
     await migrateAccountSettings()
     await migrateMaxobalertColumn()
@@ -189,11 +189,11 @@ export async function migrateAccountSettings() {
  * Requirements: 2.2 - Add individual columns with proper error handling
  */
 export async function addMissingColumn(
-  tableName: string, 
-  columnName: string, 
-  columnType: string, 
+  tableName: string,
+  columnName: string,
+  columnType: string,
   defaultValue: string | null = null
-): Promise<{success: boolean, error?: string}> {
+): Promise<{ success: boolean, error?: string }> {
   try {
     // Check if column already exists
     const exists = await columnExists(tableName, columnName)
@@ -205,10 +205,10 @@ export async function addMissingColumn(
     // Build ALTER TABLE statement
     const defaultClause = defaultValue ? `DEFAULT ${defaultValue}` : ''
     const sql = `ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnType} ${defaultClause}`.trim()
-    
+
     await db.exec(sql)
     console.log(`✓ Successfully added column ${columnName} to ${tableName}`)
-    
+
     return { success: true }
   } catch (error) {
     const errorMessage = `Failed to add column ${columnName} to ${tableName}: ${(error as Error).message}`
@@ -221,28 +221,28 @@ export async function addMissingColumn(
  * Run all database migrations to ensure schema is up to date
  * Requirements: 2.1, 2.3 - Orchestrate migrations with logging
  */
-export async function runDatabaseMigrations(): Promise<{success: boolean, results: Array<{column: string, success: boolean, error?: string}>}> {
+export async function runDatabaseMigrations(): Promise<{ success: boolean, results: Array<{ column: string, success: boolean, error?: string }> }> {
   console.log('🔄 Starting database migrations...')
-  
+
   try {
     // First validate current schema
     const validation = await validateDatabaseSchema()
-    
+
     if (validation.isValid) {
       console.log('✓ Database schema is already up to date')
       return { success: true, results: [] }
     }
 
     console.log(`📋 Found ${validation.missingColumns.length} missing columns to migrate`)
-    
+
     // Get expected columns to know types and defaults
     const expectedColumns = getExpectedColumns()
-    const results: Array<{column: string, success: boolean, error?: string}> = []
-    
+    const results: Array<{ column: string, success: boolean, error?: string }> = []
+
     // Add each missing column
     for (const missingColumnName of validation.missingColumns) {
       const expectedCol = expectedColumns.find(col => col.name === missingColumnName)
-      
+
       if (!expectedCol) {
         const error = `Unknown column ${missingColumnName} - not in expected schema`
         console.log(`✗ ${error}`)
@@ -257,7 +257,7 @@ export async function runDatabaseMigrations(): Promise<{success: boolean, result
         expectedCol.type,
         expectedCol.defaultValue
       )
-      
+
       results.push({
         column: missingColumnName,
         success: result.success,
@@ -268,9 +268,9 @@ export async function runDatabaseMigrations(): Promise<{success: boolean, result
     // Check final results
     const successCount = results.filter(r => r.success).length
     const failureCount = results.filter(r => !r.success).length
-    
+
     console.log(`📊 Migration completed: ${successCount} successful, ${failureCount} failed`)
-    
+
     if (failureCount > 0) {
       console.log('❌ Some migrations failed:')
       results.filter(r => !r.success).forEach(r => {
@@ -281,7 +281,7 @@ export async function runDatabaseMigrations(): Promise<{success: boolean, result
     // Final validation
     const finalValidation = await validateDatabaseSchema()
     const overallSuccess = finalValidation.isValid
-    
+
     if (overallSuccess) {
       console.log('✅ All database migrations completed successfully')
       logError.system('runDatabaseMigrations', `Migration completed successfully: ${successCount} columns added`)
@@ -291,7 +291,7 @@ export async function runDatabaseMigrations(): Promise<{success: boolean, result
     }
 
     return { success: overallSuccess, results }
-    
+
   } catch (error) {
     const errorMessage = `Migration process failed: ${(error as Error).message}`
     logError.system('runDatabaseMigrations', errorMessage)
@@ -305,7 +305,7 @@ export async function migrateMaxobalertColumn() {
   try {
     // Check if maxobalert column exists
     const hasMaxobalert = await columnExists('sfx_historical_orders', 'maxobalert')
-    
+
     if (!hasMaxobalert) {
       // Add maxobalert column with INTEGER type and DEFAULT NULL
       await db.exec(`
@@ -740,27 +740,27 @@ export async function updateSessionSettings(
 export function getCurrentTradingSession(): string | null {
   const now = new Date()
   const utcHour = now.getUTCHours()
-  
+
   // London session: 06:00-14:00 UTC (03:00-11:00 BRT)
   if (utcHour >= 6 && utcHour < 14) {
     return "london_session"
   }
-  
+
   // New York session: 12:00-20:00 UTC (09:00-17:00 BRT)
   if (utcHour >= 12 && utcHour < 20) {
     return "new_york_session"
   }
-  
+
   // Limbo session: 02:00-08:00 UTC (23:00-05:00 BRT)
   if ((utcHour >= 2 && utcHour < 8)) {
-      return "limbo_session"
+    return "limbo_session"
   }
-  
+
   // Asia session: 22:00-06:00 UTC (17:00-03:00 BRT) - cruza meia-noite
   if (utcHour >= 22 || utcHour < 6) {
     return "asia_session"
   }
-  
+
   return null
 }
 
@@ -805,7 +805,7 @@ export async function columnExists(tableName: string, columnName: string): Promi
  * Get the expected columns for the sfx_historical_orders table
  * Requirements: 3.1 - Define required schema
  */
-export function getExpectedColumns(): Array<{name: string, type: string, defaultValue: string | null}> {
+export function getExpectedColumns(): Array<{ name: string, type: string, defaultValue: string | null }> {
   return [
     { name: 'order_id', type: 'TEXT', defaultValue: null },
     { name: 'login', type: 'TEXT', defaultValue: null },
@@ -855,7 +855,7 @@ export function getExpectedColumns(): Array<{name: string, type: string, default
  * Validate that the database schema matches expected structure
  * Requirements: 3.1, 3.2 - Check for missing columns and log details
  */
-export async function validateDatabaseSchema(): Promise<{isValid: boolean, missingColumns: string[], errors: string[]}> {
+export async function validateDatabaseSchema(): Promise<{ isValid: boolean, missingColumns: string[], errors: string[] }> {
   try {
     const expectedColumns = getExpectedColumns()
     const actualColumns = await db.all("PRAGMA table_info(sfx_historical_orders);")
@@ -962,23 +962,23 @@ export async function getWebhookOutcomes(
 export async function orderExistsWithAlertId(alertId: string, loginNumber: string): Promise<boolean> {
   try {
     const db = await initializeDatabase();
-    
+
     // First check: Look in processed_webhook_ids table (permanent storage)
     const processedId = await db.get(
       `SELECT * FROM processed_webhook_ids WHERE alert_id = ? AND account_number = ?`,
       [alertId, loginNumber]
     );
-    
+
     if (processedId) {
       return true; // Already processed
     }
-    
+
     // Second check: Look in historical orders (fallback for existing data)
     const order = await db.get(
       `SELECT * FROM sfx_historical_orders WHERE alert_id = ? AND login = ?`,
       [alertId, loginNumber]
     );
-    
+
     return !!order; // Returns true if an order with this alert ID exists for this account
   } catch (error) {
     logError.system('orderExistsWithAlertId', `Error checking alert ID ${alertId} for account ${loginNumber}: ${(error as Error).message}`);
