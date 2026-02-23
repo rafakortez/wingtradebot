@@ -32,6 +32,10 @@ jobs:
       - name: Instalar Dependências
         run: npm ci
 
+      # Passo 3.5: Como ignoramos o src/config.ts por segurança, o TypeScript precisa dele (ou do exemplo) pra compilar
+      - name: Setup Dummy Config
+        run: cp src/config.example.ts src/config.ts
+
       # Passo 4 (Linter Checks): Como usamos Typescript, vamos garantir que ele compila sem erros (Basic Linter check)
       - name: Validar TypeScript (Linter / Build Check)
         run: npx tsc --noEmit
