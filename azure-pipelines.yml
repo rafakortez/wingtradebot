@@ -1,8 +1,38 @@
-pool: Default
+name: CI-CD-Pipeline-WingTradeBot
+
+trigger:
+  branches:
+    include:
+    - main
+    - master
+
+pool:
+  name: 'Default'
 
 steps:
-- script: echo "Hello from Rafael's PC"
-  displayName: 'Connection Test'
+- checkout: self
 
-- script: docker --version
-  displayName: 'Check Docker'
+- task: NodeTool@0
+  inputs:
+    versionSpec: '20.x'
+  displayName: 'Setup Node.js 20.x'
+
+- script: |
+    npm ci
+  displayName: 'Instalar Dependências'
+
+- script: |
+    copy src\config.example.ts src\config.ts
+  displayName: 'Setup Dummy Config'
+
+- script: |
+    npx tsc --noEmit
+  displayName: 'Validar TypeScript'
+
+- script: |
+    npm test
+  displayName: 'Run Tests'
+
+- script: |
+    docker build -t wingtradebot:test .
+  displayName: 'Build Docker Image'
