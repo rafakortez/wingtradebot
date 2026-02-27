@@ -1,0 +1,44 @@
+name: CI-CD-Pipeline-WingTradeBot
+
+trigger:
+  branches:
+    include:
+    - main
+    - master
+
+pr:
+  branches:
+    include:
+    - main
+    - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- checkout: self
+
+- task: NodeTool@0
+  inputs:
+    versionSpec: '20.x'
+  displayName: 'Setup Node.js 20.x'
+
+- script: |
+    npm ci
+  displayName: 'Instalar Dependências'
+
+- script: |
+    cp src/config.example.ts src/config.ts
+  displayName: 'Setup Dummy Config'
+
+- script: |
+    npx tsc --noEmit
+  displayName: 'Validar TypeScript (Linter / Build Check)'
+
+- script: |
+    npm test
+  displayName: 'Run Unit Tests & Container/DB Tests'
+
+- script: |
+    docker build -t wingtradebot:test .
+  displayName: 'Build Docker Image'
