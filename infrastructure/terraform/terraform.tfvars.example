@@ -1,12 +1,12 @@
-# Copiar para terraform.tfvars e preencher os valores reais
-# NUNCA commitar o terraform.tfvars
+# Copy to terraform.tfvars and fill in your values
+# Never commit terraform.tfvars (contains secrets)
 
-# Token da API do DigitalOcean
-# Gerar em: https://cloud.digitalocean.com/account/api/tokens
+# DigitalOcean API token
+# Generate at: https://cloud.digitalocean.com/account/api/tokens
 do_token = "dop_v1_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
-# Conteúdo da chave pública (cat ~/.ssh/nova_kygen.pub)
-ssh_public_key = "ssh-ed25519 AAAA..."
+# SSH public key contents (cat ~/.ssh/your_key.pub)
+ssh_public_key = "ssh-ed25519 AAAA... user@hostname"
 
-# Porta SSH customizada (qualquer porta > 1024, ex: 2277)
+# Custom SSH port (any port > 1024)
 ssh_port = 2277

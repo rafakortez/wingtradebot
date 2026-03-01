@@ -4,35 +4,35 @@ variable "gcp_project" {
 }
 
 variable "gcp_credentials_file" {
-  description = "Caminho para o JSON de credenciais do GCP Service Account"
+  description = "Path to GCP Service Account JSON credentials file"
   type        = string
 }
 
 variable "region" {
-  description = "Região GCP"
+  description = "GCP region"
   type        = string
   default     = "us-central1"
 }
 
 variable "zone" {
-  description = "Zona GCP (us-central1-a é free tier)"
+  description = "GCP zone (us-central1-a is free tier eligible)"
   type        = string
   default     = "us-central1-a"
 }
 
 variable "machine_type" {
-  description = "Tipo de máquina (e2-micro = free tier)"
+  description = "VM machine type (e2-micro = free tier, e2-small = 2 GB RAM)"
   type        = string
   default     = "e2-small"
 }
 
 variable "ssh_public_key" {
-  description = "Conteúdo da chave pública SSH"
+  description = "SSH public key contents"
   type        = string
 }
 
 variable "ssh_port" {
-  description = "Porta SSH customizada"
+  description = "Custom SSH port (non-default)"
   type        = number
   default     = 2277
 }

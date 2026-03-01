@@ -1,35 +1,35 @@
 ---
-# Role: nodejs — instala Node.js via NodeSource oficial
+# Role: nodejs — Installs Node.js via official NodeSource script
 
-- name: Verificar se Node.js já está instalado
+- name: Check if Node.js is already installed
   command: node --version
   register: node_check
   ignore_errors: true
   changed_when: false
 
-- name: Baixar script de setup do NodeSource
+- name: Download NodeSource setup script
   get_url:
     url: "https://deb.nodesource.com/setup_{{ nodejs_version }}.x"
     dest: /tmp/nodesource_setup.sh
     mode: "0755"
   when: node_check.failed
 
-- name: Executar script de setup do NodeSource
+- name: Execute NodeSource setup script
   command: bash /tmp/nodesource_setup.sh
   when: node_check.failed
 
-- name: Instalar Node.js {{ nodejs_version }}.x
+- name: Install Node.js {{ nodejs_version }}.x
   apt:
     name: nodejs
     state: present
     update_cache: yes
   when: node_check.failed
 
-- name: Verificar versão instalada
+- name: Verify installed version
   command: node --version
   register: node_version
   changed_when: false
 
-- name: Mostrar versão do Node.js
+- name: Display Node.js version
   debug:
-    msg: "Node.js instalado: {{ node_version.stdout }}"
+    msg: "Installed Node.js version: {{ node_version.stdout }}"

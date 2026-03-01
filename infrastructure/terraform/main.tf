@@ -11,7 +11,7 @@ provider "digitalocean" {
   token = var.do_token
 }
 
-# ─── Chave SSH ────────────────────────────────────────────────────────────────
+# ─── SSH Key ──────────────────────────────────────────────────────────────────
 resource "digitalocean_ssh_key" "trading" {
   name       = "wingtradebot-key"
   public_key = var.ssh_public_key
@@ -28,7 +28,7 @@ resource "digitalocean_droplet" "trading" {
   tags = ["wingtradebot", "production"]
 }
 
-# ─── IP Reservado (não muda mesmo recriando o droplet) ────────────────────────
+# ─── Reserved IP (persists across droplet rebuilds) ───────────────────────────
 resource "digitalocean_reserved_ip" "trading" {
   region = var.region
 }
@@ -39,7 +39,6 @@ resource "digitalocean_reserved_ip_assignment" "trading" {
 }
 
 # ─── Firewall ─────────────────────────────────────────────────────────────────
-# Substitui o ufw que estava desativado no servidor
 resource "digitalocean_firewall" "trading" {
   name        = "wingtradebot-firewall"
   droplet_ids = [digitalocean_droplet.trading.id]
@@ -58,20 +57,20 @@ resource "digitalocean_firewall" "trading" {
     source_addresses = ["0.0.0.0/0", "::/0"]
   }
 
-  # SSH — porta customizada (não a 22)
+  # SSH — custom port (not default 22)
   inbound_rule {
     protocol         = "tcp"
     port_range       = tostring(var.ssh_port)
     source_addresses = ["0.0.0.0/0", "::/0"]
   }
 
-  # ICMP — permite ping para diagnóstico
+  # ICMP — allows ping for diagnostics
   inbound_rule {
     protocol         = "icmp"
     source_addresses = ["0.0.0.0/0", "::/0"]
   }
 
-  # Saída — tudo permitido (app chama APIs externas)
+  # Outbound — all allowed (app calls external APIs)
   outbound_rule {
     protocol              = "tcp"
     port_range            = "1-65535"

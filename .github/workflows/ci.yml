@@ -1,50 +1,50 @@
 name: CI/CD Pipeline - WingTradeBot
 
-# 1. GATILHOS: Quando isso vai rodar?
+# 1. TRIGGERS: When will this run?
 on:
   push:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
 
-# 2. JOBS: Os trabalhos que vamos executar
+# 2. JOBS: The tasks we will execute
 jobs:
   build-and-test:
     name: Build & Test
-    # O GitHub levanta a máquina mais recente do Ubuntu na nuvem deles para nós:
+    # GitHub spins up the latest Ubuntu machine in their cloud for us:
     runs-on: ubuntu-latest
 
-    # 3. STEPS: O passo a passo que a máquina do Github vai fazer
+    # 3. STEPS: The sequence of commands the GitHub runner will execute
     steps:
-      # Passo 1: O Github não tem seu código. Essa action "puxa" o seu código pro servidor deles.
-      - name: Checkout do Código
+      # Step 1: GitHub doesn't have your code yet. This action "pulls" your code to their server.
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Passo 2: O Ubuntu deles vem pelado. Precisamos mandar instalar o Node.js
+      # Step 2: The Ubuntu runner is bare. We need to install Node.js.
       - name: Setup Node.js 20.x
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Versão estável do Node
-          cache: 'npm'       # Faz cache dos pacotes pra acelerar a pipeline no futuro
+          node-version: '20' # Stable Node version
+          cache: 'npm'       # Caches packages to speed up future pipeline runs
 
-      # Passo 3: Agora que tem Node e Código, instalamos os pacotes.
-      # Usamos npm ci (clean install) pois ele obedece o package-lock.json estritamente, ideal pra esteiras.
-      - name: Instalar Dependências
+      # Step 3: Now that we have Node and Code, install the packages.
+      # We use npm ci (clean install) because it strictly follows package-lock.json, ideal for CI/CD.
+      - name: Install Dependencies
         run: npm ci
 
-      # Passo 3.5: Como ignoramos o src/config.ts por segurança, o TypeScript precisa dele (ou do exemplo) pra compilar
+      # Step 3.5: Since we ignore src/config.ts for security, TypeScript needs it (or the example) to compile
       - name: Setup Dummy Config
         run: cp src/config.example.ts src/config.ts
 
-      # Passo 4 (Linter Checks): Como usamos Typescript, vamos garantir que ele compila sem erros (Basic Linter check)
-      - name: Validar TypeScript (Linter / Build Check)
+      # Step 4 (Linter Checks): Since we use TypeScript, ensure it compiles without errors
+      - name: Validate TypeScript (Linter / Build Check)
         run: npx tsc --noEmit
 
-      # Passo 5: Rodar os testes que criamos! Unitários e de Integração
+      # Step 5: Run the tests we wrote! Unit and Integration tests
       - name: Run Unit Tests & Container/DB Tests
         run: npm test
 
-      # Passo 6: Cria a imagem docker provando que seu Dockerfile funciona
+      # Step 6: Create the Docker image proving that the Dockerfile works
       - name: Build Docker Image
         run: docker build -t wingtradebot:test .
         

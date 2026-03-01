@@ -1,0 +1,18 @@
+# ─── AWS Credentials ──────────────────────────────────────────────────────────
+# Gere em: https://console.aws.amazon.com/iam/ > Users > Security Credentials
+aws_access_key = "AKIAIOSFODNN7EXAMPLE"
+aws_secret_key = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+
+# ─── SSH ──────────────────────────────────────────────────────────────────────
+ssh_public_key = "ssh-rsa AAAAB3... your-key"
+ssh_port       = 2277
+
+# ─── Instância ────────────────────────────────────────────────────────────────
+instance_name = "wingtradebot"
+region        = "us-east-1"
+instance_type = "t3.small"
+
+# AMI Ubuntu 24.04 LTS — muda por região!
+# us-east-1: ami-0a0e5d9c7acc336f1
+# sa-east-1: ami-0fb4cf3a99aa89f72 (São Paulo)
+ami_id = "ami-0a0e5d9c7acc336f1"

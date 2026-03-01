@@ -1,46 +1,46 @@
-# Estágio 1: Build da Aplicação
+# Stage 1: Application Build
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copiar arquivos de dependências
+# Copy dependency files
 COPY package*.json ./
 COPY tsconfig*.json ./
 
-# Instalar TODAS as dependências (incluindo devDependencies para build)
+# Install ALL dependencies (including devDependencies for build)
 RUN npm ci
 
-# Copiar código fonte
+# Copy source code
 COPY src/ ./src/
 
-# O Typescript precisa de um arquivo de config existente para o build
-# Vamos copiar o example apenas pra agradar o compilador no build em produção
+# TypeScript requires an existing config file for the build
+# We copy the example just to satisfy the compiler for the production build
 COPY src/config.example.ts ./src/config.ts
 
-# Compilar Typescript
+# Compile TypeScript
 RUN npm run build
 
 # ==========================================
 
-# Estágio 2: Imagem Limpa de Produção
+# Stage 2: Clean Production Image
 FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Colocando Node in Production environment (otimiza dependências do Express, etc)
+# Set Node to Production environment (optimizes Express dependencies, etc.)
 ENV NODE_ENV=production
 
-# Copiar apenas os manifestos base novamente
+# Copy only base manifests again
 COPY package*.json ./
 
-# Instalar APENAS dependências vitais de Produção (ignorando Jest, Typercript docs...) - Imagem fica leve
+# Install ONLY vital Production dependencies (ignoring Jest, TypeScript docs...) - keeps image light
 RUN npm ci --only=production
 
-# Copiar apenas a posta de código compilado de verdade (Javascript sujo e puro, performático)
+# Copy only the actually compiled code folder (clean, performant Javascript)
 COPY --from=builder /app/dist ./dist
 
 # EXPOSE documentation
 EXPOSE 443 80
 
-# Comando para rodar a aplicação direta (como definido no seu package.json)
+# Command to run the application directly (as defined in package.json)
 CMD ["npm", "run", "start:direct"]

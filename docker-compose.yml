@@ -1,0 +1,43 @@
+# WingTradeBot — Docker Compose
+#
+# Uso:
+#   docker compose up -d          # sobe em background
+#   docker compose logs -f        # acompanha logs
+#   docker compose down           # para tudo
+#   docker compose up --build     # rebuild + sobe
+
+services:
+  wingtradebot:
+    build: .
+    image: wingtradebot:latest
+    container_name: wingtradebot
+    restart: unless-stopped
+
+    ports:
+      - "443:443"
+      - "80:80"
+
+    env_file: .env
+
+    volumes:
+      # Certificados SSL (read-only dentro do container)
+      - ./ssl:/app/ssl:ro
+      # Persistir banco SQLite fora do container
+      - bot-data:/app/data
+
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:80/status', r => { process.exit(r.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  bot-data:
+    name: wingtradebot-data

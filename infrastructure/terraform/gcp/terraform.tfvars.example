@@ -1,11 +1,11 @@
-# Copiar para terraform.tfvars e preencher
-# NUNCA commitar terraform.tfvars
+# Copy to terraform.tfvars and fill in your values
+# Never commit terraform.tfvars (contains secrets)
 
-gcp_project          = "teste-487810"
-gcp_credentials_file = "../../../teste-487810-522c16ca6819.json"
-ssh_public_key       = "ssh-ed25519 AAAA... rafae@DESKTOP-UIMBPOC"
+gcp_project          = "your-gcp-project-id"
+gcp_credentials_file = "path/to/service-account.json"
+ssh_public_key       = "ssh-ed25519 AAAA... user@hostname"
 ssh_port             = 2277
 
-# e2-micro = free tier (1 vCPU, 1GB RAM) — suficiente para teste
-# e2-small = (1 vCPU, 2GB RAM) — igual ao DO droplet atual
+# e2-micro = free tier (1 vCPU, 1 GB RAM) — sufficient for testing
+# e2-small = (1 vCPU, 2 GB RAM) — matches the DO droplet size
 machine_type = "e2-small"

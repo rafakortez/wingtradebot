@@ -1,11 +1,11 @@
 ---
-# WingTradeBot — Playbook principal
+# WingTradeBot — Main Playbook
 #
-# Uso:
-#   ansible-playbook -i inventory.ini playbook.yml           # tudo
-#   ansible-playbook -i inventory.ini playbook.yml --tags common   # só hardening
-#   ansible-playbook -i inventory.ini playbook.yml --tags nodejs   # só Node.js
-#   ansible-playbook -i inventory.ini playbook.yml --tags app      # só a app
+# Usage:
+#   ansible-playbook -i inventory.ini playbook.yml              # full setup
+#   ansible-playbook -i inventory.ini playbook.yml --tags common   # hardening only
+#   ansible-playbook -i inventory.ini playbook.yml --tags nodejs   # Node.js only
+#   ansible-playbook -i inventory.ini playbook.yml --tags app      # app deploy only
 #   ansible-playbook -i inventory.ini playbook.yml --check         # dry run
 
 - name: WingTradeBot Server Setup

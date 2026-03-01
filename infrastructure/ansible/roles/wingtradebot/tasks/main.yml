@@ -1,50 +1,50 @@
 ---
-# Role: wingtradebot — deploy da aplicação
+# Role: wingtradebot — Deploy the trading bot application
 
-# ─── Diretório e código ────────────────────────────────────────────────────
-- name: Clonar/atualizar repositório
+# ─── Directory and Source Code ─────────────────────────────────────────────
+- name: Clone or update repository
   git:
     repo: "{{ git_repo }}"
     dest: "{{ app_dir }}"
     version: "{{ git_branch }}"
     force: yes
 
-- name: Instalar dependências npm
+- name: Install npm dependencies
   npm:
     path: "{{ app_dir }}"
     state: present
     production: yes
 
-- name: Fazer build TypeScript
+- name: Build TypeScript source
   command: npm run build
   args:
     chdir: "{{ app_dir }}"
   environment:
     NODE_OPTIONS: "--max-old-space-size=512"
 
-# ─── Configuração .env ─────────────────────────────────────────────────────
-- name: Criar arquivo .env a partir do template
+# ─── Environment Configuration ─────────────────────────────────────────────
+- name: Create .env file from template
   template:
     src: env.j2
     dest: "{{ app_dir }}/.env"
-    mode: "0600"  # apenas root lê
+    mode: "0600"  # Read/write only for root
   notify: Restart wingtradebot
 
-# ─── SSL ───────────────────────────────────────────────────────────────────
-- name: Verificar se certbot está instalado
+# ─── SSL Setup ─────────────────────────────────────────────────────────────
+- name: Check if certbot is installed
   command: certbot --version
   register: certbot_check
   ignore_errors: true
   changed_when: false
 
-- name: Instalar certbot (snap)
+- name: Install certbot (via snap)
   community.general.snap:
     name: certbot
     classic: yes
     state: present
   when: certbot_check.failed
 
-- name: Emitir certificado Let's Encrypt via DuckDNS
+- name: Issue Let's Encrypt certificate via DuckDNS
   command: >
     certbot certonly --standalone
     --non-interactive --agree-tos
@@ -54,34 +54,34 @@
     creates: /etc/letsencrypt/live/{{ duckdns_domain }}/fullchain.pem
   when: certbot_check.failed
 
-- name: Criar pasta ssl da app
+- name: Create app ssl directory
   file:
     path: "{{ app_dir }}/ssl"
     state: directory
     mode: "0700"
 
-- name: Linkar cert para pasta da app
+- name: Symlink certificate to app directory
   file:
     src: "/etc/letsencrypt/live/{{ duckdns_domain }}/fullchain.pem"
     dest: "{{ app_dir }}/ssl/cert.pem"
     state: link
     force: yes
 
-- name: Linkar key para pasta da app
+- name: Symlink private key to app directory
   file:
     src: "/etc/letsencrypt/live/{{ duckdns_domain }}/privkey.pem"
     dest: "{{ app_dir }}/ssl/key.pem"
     state: link
     force: yes
 
-- name: Cron para renovar certificado automaticamente
+- name: Setup cron job for automatic certificate renewal
   cron:
-    name: "Renovar Let's Encrypt"
+    name: "Renew Let's Encrypt certificate"
     job: "certbot renew --quiet && systemctl restart wingtradebot"
     special_time: weekly
 
-# ─── Systemd service ───────────────────────────────────────────────────────
-- name: Instalar arquivo de serviço systemd
+# ─── Systemd Service ───────────────────────────────────────────────────────
+- name: Install systemd service file
   template:
     src: wingtradebot.service.j2
     dest: /etc/systemd/system/wingtradebot.service
@@ -90,7 +90,7 @@
     - Reload systemd
     - Restart wingtradebot
 
-- name: Habilitar e iniciar serviço
+- name: Enable and start wingtradebot service
   systemd:
     name: wingtradebot
     enabled: true

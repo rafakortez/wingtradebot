@@ -1,0 +1,16 @@
+# ─── Azure Credentials (Service Principal) ────────────────────────────────────
+# Criar em: Azure Portal > App Registrations > New Registration
+# Depois: Certificates & Secrets > New Client Secret
+subscription_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+tenant_id       = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+client_id       = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+client_secret   = "your-client-secret-here"
+
+# ─── SSH ──────────────────────────────────────────────────────────────────────
+ssh_public_key = "ssh-rsa AAAAB3... your-key"
+ssh_port       = 2277
+
+# ─── VM ───────────────────────────────────────────────────────────────────────
+vm_name  = "wingtradebot"
+location = "eastus"
+vm_size  = "Standard_B1ms"  # ~1 vCPU, 2 GB RAM (~R$50/mês)

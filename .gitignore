@@ -102,7 +102,7 @@ test_services.py
 test_auth_raw.py
 test_auth_no_bearer.py
 
-# Jest / Testes
+# Jest / Tests
 coverage/
 .jest-cache/
 # NPM / Logs
@@ -110,8 +110,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# GCP credentials — NUNCA commitar
+# GCP credentials — NEVER commit
 *.json
 !package.json
 !package-lock.json
 !jest.config.js
+src/wingtradebot_github.code-workspace

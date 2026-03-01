@@ -1,31 +1,31 @@
-# Copiar para vars/main.yml e preencher
-# NUNCA commitar vars/main.yml (contém secrets)
+# Copy to vars/main.yml and fill in your values
+# NEVER commit vars/main.yml (contains secrets)
 
-# Porta SSH nova (deve ser igual à do Terraform)
+# Custom SSH port (must match Terraform output)
 ssh_port: 2277
 
-# Caminho da aplicação no servidor
+# Application installation path on server
 app_dir: /root/wingtradebot
 
-# Repositório git
+# Git repository configuration
 git_repo: https://github.com/rafakortez/wingtradebot.git
 git_branch: main
 
-# Node.js versão
+# Node.js version
 nodejs_version: "20"
 
-# Swap
+# Swap file size in MB
 swap_size_mb: 1024
 
-# Domínio DuckDNS (para SSL Let's Encrypt)
-# Criar em: https://www.duckdns.org
-duckdns_domain: "seubot.duckdns.org"
+# DuckDNS Domain (for Let's Encrypt SSL)
+# Create at: https://www.duckdns.org
+duckdns_domain: "yourbot.duckdns.org"
 duckdns_token: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
-# Credenciais do dashboard (STATUS_AUTH)
+# Dashboard Authentication Credentials (STATUS_AUTH)
 dashboard_username: "admin"
-dashboard_password: "SuaSenhaForteAqui"
+dashboard_password: "YourStrongPasswordHere"
 
-# API SimpleFX
-simplefx_api_key: "sua_api_key"
-simplefx_api_secret: "sua_api_secret"
+# SimpleFX API Credentials
+simplefx_api_key: "your_api_key"
+simplefx_api_secret: "your_api_secret"

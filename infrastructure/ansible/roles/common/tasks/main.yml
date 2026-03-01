@@ -1,44 +1,44 @@
 ---
-# Role: common — configuração base do servidor
+# Role: common — base server configuration and hardening
 
 # ─── Swap ──────────────────────────────────────────────────────────────────
-- name: Verificar se swapfile existe
+- name: Check if swapfile exists
   stat:
     path: /swapfile
   register: swapfile
 
-- name: Criar swapfile de {{ swap_size_mb }}MB
+- name: Create swapfile ({{ swap_size_mb }}MB)
   command: fallocate -l {{ swap_size_mb }}M /swapfile
   when: not swapfile.stat.exists
 
-- name: Permissões corretas no swapfile
+- name: Set swapfile permissions
   file:
     path: /swapfile
     mode: "0600"
   when: not swapfile.stat.exists
 
-- name: Formatar swapfile
+- name: Format swapfile
   command: mkswap /swapfile
   when: not swapfile.stat.exists
 
-- name: Ativar swapfile
+- name: Activate swapfile
   command: swapon /swapfile
   when: not swapfile.stat.exists
 
-- name: Garantir swap no fstab (persistente)
+- name: Persist swap in fstab
   lineinfile:
     path: /etc/fstab
     line: "/swapfile none swap sw 0 0"
     state: present
 
 # ─── Journald ──────────────────────────────────────────────────────────────
-- name: Criar pasta journald.conf.d
+- name: Create journald config directory
   file:
     path: /etc/systemd/journald.conf.d
     state: directory
     mode: "0755"
 
-- name: Limitar uso do journald
+- name: Configure journald log limits
   copy:
     dest: /etc/systemd/journald.conf.d/limits.conf
     content: |
@@ -50,14 +50,14 @@
   notify: Restart journald
 
 # ─── SSH hardening ─────────────────────────────────────────────────────────
-- name: Mudar porta SSH para {{ ssh_port }}
+- name: Set custom SSH port ({{ ssh_port }})
   lineinfile:
     path: /etc/ssh/sshd_config
     regexp: "^#?Port "
     line: "Port {{ ssh_port }}"
   notify: Restart sshd
 
-- name: Garantir PasswordAuthentication desabilitado
+- name: Disable password authentication
   lineinfile:
     path: /etc/ssh/sshd_config.d/60-cloudimg-settings.conf
     regexp: "^PasswordAuthentication"
@@ -66,13 +66,13 @@
   notify: Restart sshd
 
 # ─── fail2ban ──────────────────────────────────────────────────────────────
-- name: Instalar fail2ban
+- name: Install fail2ban
   apt:
     name: fail2ban
     state: present
     update_cache: yes
 
-- name: Configurar fail2ban para SSH na porta customizada
+- name: Configure fail2ban for custom SSH port
   copy:
     dest: /etc/fail2ban/jail.d/sshd.conf
     content: |
@@ -83,15 +83,15 @@
       bantime  = 3600
   notify: Restart fail2ban
 
-# ─── Serviços inúteis ──────────────────────────────────────────────────────
-- name: Desabilitar ModemManager
+# ─── Disable unnecessary services ─────────────────────────────────────────
+- name: Disable ModemManager
   systemd:
     name: ModemManager
     state: stopped
     enabled: false
   ignore_errors: true
 
-- name: Desabilitar udisks2
+- name: Disable udisks2
   systemd:
     name: udisks2
     state: stopped

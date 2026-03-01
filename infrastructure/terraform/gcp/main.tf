@@ -14,13 +14,13 @@ provider "google" {
   zone        = var.zone
 }
 
-# ─── IP Estático ──────────────────────────────────────────────────────────────
+# ─── Static IP ────────────────────────────────────────────────────────────────
 resource "google_compute_address" "trading" {
   name   = "wingtradebot-ip"
   region = var.region
 }
 
-# ─── Firewall ─────────────────────────────────────────────────────────────────
+# ─── Firewall Rules ───────────────────────────────────────────────────────────
 resource "google_compute_firewall" "allow_web" {
   name    = "wingtradebot-allow-web"
   network = "default"
@@ -59,7 +59,7 @@ resource "google_compute_firewall" "allow_icmp" {
   target_tags   = ["wingtradebot"]
 }
 
-# ─── VM (equivalente ao Droplet DO) ───────────────────────────────────────────
+# ─── VM Instance ──────────────────────────────────────────────────────────────
 resource "google_compute_instance" "trading" {
   name         = "wingtradebot-test"
   machine_type = var.machine_type
@@ -69,7 +69,7 @@ resource "google_compute_instance" "trading" {
   boot_disk {
     initialize_params {
       image = "ubuntu-os-cloud/ubuntu-2404-lts-amd64"
-      size  = 20  # GB
+      size  = 20 # GB
     }
   }
 
@@ -77,13 +77,12 @@ resource "google_compute_instance" "trading" {
     network = "default"
 
     access_config {
-      # Usa o IP estático reservado
+      # Attach the static IP
       nat_ip = google_compute_address.trading.address
     }
   }
 
   metadata = {
-    # Chave SSH injetada na VM — mesmo conceito do DigitalOcean
     ssh-keys = "root:${var.ssh_public_key}"
   }
 }

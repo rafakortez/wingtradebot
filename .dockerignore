@@ -5,14 +5,14 @@ build/
 .github/
 .vscode/
 
-# Environment files e Banco de Dados (NUNCA VÃO PRO DOCKER!!!)
+# Environment files and Database (NEVER PUT IN DOCKER!!!)
 .env
 .env.*
 *.db
 *.db-journal
 *.db-wal
 
-# Testes / Logs
+# Tests / Logs
 coverage/
 tests/
 jest.config.js
@@ -20,7 +20,7 @@ npm-debug.log
 yarn-debug.log
 *.log
 
-# Scripts de Desenvolvimento
+# Development Scripts
 diagnostic.sh
 scripts/
 docs/
