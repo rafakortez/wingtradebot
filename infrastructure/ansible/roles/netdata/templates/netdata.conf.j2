@@ -1,0 +1,11 @@
+# Netdata configuration
+# Based on live server audit (Feb 2026)
+[global]
+    run as user = netdata
+    history = 3996
+    bind to = 0.0.0.0
+
+[web]
+    bind to = 0.0.0.0:19999
+    # Limit access to specific IPs if required:
+    # allow connections from = localhost 10.* 192.168.* 

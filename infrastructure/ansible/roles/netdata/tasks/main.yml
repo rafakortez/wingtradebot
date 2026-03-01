@@ -1,0 +1,39 @@
+---
+# Role: netdata — Installs and configures Netdata monitoring agent
+
+- name: Check if Netdata is installed
+  stat:
+    path: /usr/sbin/netdata
+  register: netdata_bin
+
+- name: Download Netdata kickstart script
+  get_url:
+    url: https://get.netdata.cloud/kickstart.sh
+    dest: /tmp/netdata-kickstart.sh
+    mode: '0755'
+  when: not netdata_bin.stat.exists
+
+- name: Install Netdata (non-interactive)
+  command: /tmp/netdata-kickstart.sh --non-interactive
+  when: not netdata_bin.stat.exists
+
+- name: Ensure Netdata configuration directory exists
+  file:
+    path: /etc/netdata
+    state: directory
+    mode: '0755'
+
+- name: Configure Netdata (netdata.conf)
+  template:
+    src: "netdata.conf.j2"
+    dest: /etc/netdata/netdata.conf
+    owner: netdata
+    group: netdata
+    mode: '0644'
+  notify: Restart netdata
+
+- name: Ensure Netdata service is enabled and started
+  systemd:
+    name: netdata
+    enabled: yes
+    state: started

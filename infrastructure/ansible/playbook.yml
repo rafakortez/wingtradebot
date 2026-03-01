@@ -19,5 +19,7 @@
       tags: common
     - role: nodejs
       tags: nodejs
+    - role: netdata
+      tags: netdata
     - role: wingtradebot
       tags: app

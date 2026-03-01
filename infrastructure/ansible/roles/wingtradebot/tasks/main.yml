@@ -2,12 +2,22 @@
 # Role: wingtradebot — Deploy the trading bot application
 
 # ─── Directory and Source Code ─────────────────────────────────────────────
-- name: Clone or update repository
-  git:
-    repo: "{{ git_repo }}"
-    dest: "{{ app_dir }}"
-    version: "{{ git_branch }}"
-    force: yes
+- name: Ensure app directory exists
+  file:
+    path: "{{ app_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Copy project files to server
+  synchronize:
+    src: "{{ playbook_dir }}/../../"
+    dest: "{{ app_dir }}/"
+    rsync_opts:
+      - "--exclude=.git"
+      - "--exclude=node_modules"
+      - "--exclude=dist"
+      - "--exclude=.env"
+      - "--exclude=infrastructure"
 
 - name: Install npm dependencies
   npm:
@@ -31,54 +41,27 @@
   notify: Restart wingtradebot
 
 # ─── SSL Setup ─────────────────────────────────────────────────────────────
-- name: Check if certbot is installed
-  command: certbot --version
-  register: certbot_check
-  ignore_errors: true
-  changed_when: false
-
-- name: Install certbot (via snap)
-  community.general.snap:
-    name: certbot
-    classic: yes
-    state: present
-  when: certbot_check.failed
-
-- name: Issue Let's Encrypt certificate via DuckDNS
-  command: >
-    certbot certonly --standalone
-    --non-interactive --agree-tos
-    --email admin@{{ duckdns_domain }}
-    -d {{ duckdns_domain }}
-  args:
-    creates: /etc/letsencrypt/live/{{ duckdns_domain }}/fullchain.pem
-  when: certbot_check.failed
-
 - name: Create app ssl directory
   file:
     path: "{{ app_dir }}/ssl"
     state: directory
     mode: "0700"
 
-- name: Symlink certificate to app directory
-  file:
-    src: "/etc/letsencrypt/live/{{ duckdns_domain }}/fullchain.pem"
+- name: Copy SSL certificate to server (if exists locally)
+  copy:
+    src: "{{ playbook_dir }}/../../ssl/cert.pem"
     dest: "{{ app_dir }}/ssl/cert.pem"
-    state: link
-    force: yes
+    mode: "0600"
+  ignore_errors: true
+  notify: Restart wingtradebot
 
-- name: Symlink private key to app directory
-  file:
-    src: "/etc/letsencrypt/live/{{ duckdns_domain }}/privkey.pem"
+- name: Copy SSL private key to server (if exists locally)
+  copy:
+    src: "{{ playbook_dir }}/../../ssl/key.pem"
     dest: "{{ app_dir }}/ssl/key.pem"
-    state: link
-    force: yes
-
-- name: Setup cron job for automatic certificate renewal
-  cron:
-    name: "Renew Let's Encrypt certificate"
-    job: "certbot renew --quiet && systemctl restart wingtradebot"
-    special_time: weekly
+    mode: "0600"
+  ignore_errors: true
+  notify: Restart wingtradebot
 
 # ─── Systemd Service ───────────────────────────────────────────────────────
 - name: Install systemd service file

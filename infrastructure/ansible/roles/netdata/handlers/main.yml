@@ -1,0 +1,6 @@
+---
+handlers:
+  - name: Restart netdata
+    systemd:
+      name: netdata
+      state: restarted
