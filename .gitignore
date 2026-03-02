@@ -28,6 +28,17 @@ env/
 # Environment variables
 .env
 .env.local
+
+# Terraform secrets (never commit these!)
+infrastructure/terraform/secrets.env
+infrastructure/terraform/secrets.ps1
+infrastructure/terraform/terraform.tfvars
+infrastructure/terraform/*/terraform.tfvars
+infrastructure/terraform/*/*.json
+
+# Node.js - TypeScript compilation output
+dist/
+node_modules/
 .env.*.local
 
 # Database
@@ -116,3 +127,6 @@ yarn-error.log*
 !package-lock.json
 !jest.config.js
 src/wingtradebot_github.code-workspace
+
+# DevOps Training Study Guides
+devops_training/

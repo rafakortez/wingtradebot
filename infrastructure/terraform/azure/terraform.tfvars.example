@@ -1,16 +1,29 @@
-# ─── Azure Credentials (Service Principal) ────────────────────────────────────
-# Criar em: Azure Portal > App Registrations > New Registration
-# Depois: Certificates & Secrets > New Client Secret
+# ─── Azure Service Principal ───────────────────────────────────────────────────
+# Create at: Azure Portal > App Registrations > New Registration
+# Then: Certificates & Secrets > New Client Secret
+# Assign role: Contributor on your subscription
 subscription_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 tenant_id       = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 client_id       = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-client_secret   = "your-client-secret-here"
+client_secret   = "your-client-secret-value"
 
 # ─── SSH ──────────────────────────────────────────────────────────────────────
 ssh_public_key = "ssh-rsa AAAAB3... your-key"
 ssh_port       = 2277
 
 # ─── VM ───────────────────────────────────────────────────────────────────────
-vm_name  = "wingtradebot"
-location = "eastus"
-vm_size  = "Standard_B1ms"  # ~1 vCPU, 2 GB RAM (~R$50/mês)
+vm_name   = "wingtradebot"
+location  = "eastus"
+vm_size   = "Standard_B1ms"  # 1 vCPU, 2 GB RAM
+
+# ─── Azure PostgreSQL Flexible Server ─────────────────────────────────────────
+# Uses free trial credits ($200)
+db_username = "wingbot"
+# Password requirements: 8+ chars, uppercase, lowercase, number, special char
+db_password = "YourStrongDbPassword123!"
+
+# Your local machine's public IP for migration tool access
+# Find it: curl ifconfig.me
+# For a single IP, set both start and end to the same value
+migration_tool_start_ip = "YOUR_LOCAL_IP"
+migration_tool_end_ip   = "YOUR_LOCAL_IP"

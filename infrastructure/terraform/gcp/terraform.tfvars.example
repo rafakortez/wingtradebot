@@ -1,11 +1,29 @@
-# Copy to terraform.tfvars and fill in your values
-# Never commit terraform.tfvars (contains secrets)
+# ─── GCP Project ──────────────────────────────────────────────────────────────
+# Your GCP Project ID (not the project name)
+# Find it: gcloud projects list
+gcp_project = "your-gcp-project-id"
 
-gcp_project          = "your-gcp-project-id"
-gcp_credentials_file = "path/to/service-account.json"
-ssh_public_key       = "ssh-ed25519 AAAA... user@hostname"
-ssh_port             = 2277
+# Path to your GCP Service Account JSON key file
+# Create at: IAM & Admin > Service Accounts > Create Key (JSON)
+# Required roles: Compute Admin, Cloud SQL Admin
+gcp_credentials_file = "./gcp-credentials.json"
 
-# e2-micro = free tier (1 vCPU, 1 GB RAM) — sufficient for testing
-# e2-small = (1 vCPU, 2 GB RAM) — matches the DO droplet size
-machine_type = "e2-small"
+# ─── Region & Zone ────────────────────────────────────────────────────────────
+region = "us-central1"
+zone   = "us-central1-a"
+
+# ─── VM ───────────────────────────────────────────────────────────────────────
+machine_type = "e2-small"  # 2 vCPU, 2 GB RAM
+
+# ─── SSH ──────────────────────────────────────────────────────────────────────
+ssh_public_key = "ssh-rsa AAAAB3... your-key"
+ssh_port       = 2277
+
+# ─── Cloud SQL PostgreSQL ─────────────────────────────────────────────────────
+db_username = "wingbot"
+db_password = "YourStrongDbPassword123"  # Min 8 chars
+
+# Your local machine's public IP in CIDR notation
+# Find it: curl ifconfig.me
+# Example: "203.0.113.5/32"
+migration_tool_ip = "YOUR_LOCAL_IP/32"

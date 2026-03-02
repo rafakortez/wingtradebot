@@ -1,10 +1,10 @@
 ---
-# WingTradeBot — Main Playbook
+# WingTradeBot — Main Playbook (Docker-based deployment)
 #
 # Usage:
 #   ansible-playbook -i inventory.ini playbook.yml              # full setup
 #   ansible-playbook -i inventory.ini playbook.yml --tags common   # hardening only
-#   ansible-playbook -i inventory.ini playbook.yml --tags nodejs   # Node.js only
+#   ansible-playbook -i inventory.ini playbook.yml --tags docker    # Docker install only
 #   ansible-playbook -i inventory.ini playbook.yml --tags app      # app deploy only
 #   ansible-playbook -i inventory.ini playbook.yml --check         # dry run
 
@@ -17,8 +17,8 @@
   roles:
     - role: common
       tags: common
-    - role: nodejs
-      tags: nodejs
+    - role: docker
+      tags: docker
     - role: netdata
       tags: netdata
     - role: wingtradebot

@@ -1,31 +1,93 @@
-# Copy to vars/main.yml and fill in your values
-# NEVER commit vars/main.yml (contains secrets)
+# WingTradeBot — Ansible Variables Template
+#
+# HOW TO USE:
+#   cp infrastructure/ansible/vars/main.yml.example infrastructure/ansible/vars/main.yml
+#   Fill in your real values in vars/main.yml
+#   NEVER commit vars/main.yml — it contains secrets (.gitignore already excludes it)
 
-# Custom SSH port (must match Terraform output)
+# ── GitHub Container Registry ───────────────────────────────────────────────────
+# Your GitHub username and a Personal Access Token (PAT) with 'read:packages' scope
+# Create PAT: GitHub > Settings > Developer settings > Personal access tokens > Fine-grained tokens
+ghcr_username: "your-github-username"
+ghcr_token: "ghp_your_personal_access_token"
+
+# Docker image names (from GitHub Actions workflow)
+docker_image_core: "ghcr.io/YOUR_GITHUB_USERNAME/wingtradebot-core"
+docker_image_fastapi: "ghcr.io/YOUR_GITHUB_USERNAME/wingtradebot-fastapi"
+
+# ── SSH & Server ──────────────────────────────────────────────────────────────
+# Custom SSH port (must match Terraform variable ssh_port)
 ssh_port: 2277
 
 # Application installation path on server
 app_dir: /root/wingtradebot
 
-# Git repository configuration
-git_repo: https://github.com/rafakortez/wingtradebot.git
-git_branch: main
+# Public IP of the target server (output from terraform apply)
+server_ip: "YOUR_SERVER_PUBLIC_IP"
 
-# Node.js version
+# ── Node.js ───────────────────────────────────────────────────────────────────
 nodejs_version: "20"
 
-# Swap file size in MB
+# ── System ────────────────────────────────────────────────────────────────────
+# Swap file size in MB (recommended: 1024 for t3.small / e2-small)
 swap_size_mb: 1024
 
-# DuckDNS Domain (for Let's Encrypt SSL)
-# Create at: https://www.duckdns.org
+# ── SSL / Domain ──────────────────────────────────────────────────────────────
+# DuckDNS free domain (create at https://www.duckdns.org)
 duckdns_domain: "yourbot.duckdns.org"
 duckdns_token: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
-# Dashboard Authentication Credentials (STATUS_AUTH)
+# ── App Configuration ─────────────────────────────────────────────────────────
+app_port: "443"
+debug_level: "normal"
+
+# ── Dashboard Authentication ──────────────────────────────────────────────────
 dashboard_username: "admin"
 dashboard_password: "YourStrongPasswordHere"
 
-# SimpleFX API Credentials
-simplefx_api_key: "your_api_key"
-simplefx_api_secret: "your_api_secret"
+# ── SimpleFX API — Primary credentials ───────────────────────────────────────
+simplefx_api_key: "your_primary_api_key"
+simplefx_api_secret: "your_primary_api_secret"
+
+# ── SimpleFX API — Secondary credentials (optional) ──────────────────────────
+# Leave empty strings if you only have one set of credentials
+simplefx_api_key2: ""
+simplefx_api_secret2: ""
+
+# ── Account Configuration ─────────────────────────────────────────────────────
+default_account_number: "YOUR_ACCOUNT_NUMBER"
+# Comma-separated list of all accounts to monitor
+all_monitored_accounts: "YOUR_ACCOUNT_NUMBER"
+# Comma-separated list of accounts using secondary API (leave empty if none)
+secondary_api_accounts: ""
+
+# ── IP Allowlist ──────────────────────────────────────────────────────────────
+# TradingView IPs are pre-filled. Add your server IP and any other trusted IPs.
+allowed_ips: "52.89.214.238,34.212.75.30,54.218.53.128,52.32.178.7,YOUR_SERVER_IP,127.0.0.1,::1"
+
+# ── Database ──────────────────────────────────────────────────────────────────
+# Options: 'sqlite' (legacy/local) or 'postgres' (cloud deployment)
+db_type: "postgres"
+
+# PostgreSQL connection string — required when db_type=postgres
+# Get this value from Terraform output: terraform output db_endpoint
+# Format: postgres://USERNAME:PASSWORD@HOSTNAME:5432/wingtradebot
+database_url: "postgres://wingbot:YourStrongDbPassword@your-db-endpoint.amazonaws.com:5432/wingtradebot"
+
+# SQLite file path — only used when db_type=sqlite
+db_file: "./sfx_historical_orders.db"
+
+# PostgreSQL credentials — used by Terraform to create the managed DB
+# and by Ansible db_init role to run schema migrations
+db_username: "wingbot"
+db_password: "YourStrongDbPasswordHere"
+
+# ── Inter-service Communication ───────────────────────────────────────────────
+# URL of the FastAPI microservice (if running alongside Node.js)
+# Use 'http://localhost:8000' if FastAPI is on the same VM
+# Use 'http://fastapi-proxy:8000' if using Docker Compose
+fastapi_url: "http://localhost:8000"
+
+# ── Cron Jobs ─────────────────────────────────────────────────────────────────
+order_sync_interval: "30"
+enable_order_sync: "true"

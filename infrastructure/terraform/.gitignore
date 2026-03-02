@@ -1,9 +1,11 @@
-# Terraform state — contém IPs, IDs e dados sensíveis
-terraform.tfstate
-terraform.tfstate.backup
+# Terraform state files
+*.tfstate
+*.tfstate.backup
 .terraform/
 
-# Valores reais das variáveis — nunca commitar
-terraform.tfvars
+# Credentials files - NEVER commit these
+# Use environment variables: TF_VAR_* instead
+*.json
+*.tfvars
 
-# .terraform.lock.hcl deve ser commitado (trava versão dos providers)
+# .terraform.lock.hcl should be committed (locks provider versions)

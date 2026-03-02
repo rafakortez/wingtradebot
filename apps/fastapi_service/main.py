@@ -188,8 +188,8 @@ async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
     check_for_nodejs_services()
     
-        sync_task = asyncio.create_task(sync_all_accounts())
-        yield
+    sync_task = asyncio.create_task(sync_all_accounts())
+    yield
     sync_task.cancel()
     try:
         await sync_task

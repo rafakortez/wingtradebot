@@ -170,3 +170,58 @@ resource "azurerm_linux_virtual_machine" "trading" {
     Env     = "production"
   }
 }
+
+# ─── Azure Database for PostgreSQL Flexible Server ────────────────────────────
+# Uses free trial credits ($200). Burstable B1ms: 1 vCPU, 2 GB RAM.
+# NOTE: Azure Database for PostgreSQL has no permanent free tier.
+# After trial credits, B_Standard_B1ms costs ~$12/month.
+resource "azurerm_postgresql_flexible_server" "trading" {
+  name                   = "wingtradebot-db"
+  resource_group_name    = azurerm_resource_group.trading.name
+  location               = azurerm_resource_group.trading.location
+  version                = "16"
+  administrator_login    = var.db_username
+  administrator_password = var.db_password
+
+  # Burstable tier — cheapest option, suitable for dev/small workloads
+  sku_name   = "B_Standard_B1ms"
+  storage_mb = 32768  # 32 GB minimum for Flexible Server
+
+  # No high availability (cheapest)
+  high_availability {
+    mode = "SameZone"
+  }
+
+  # Allow public access so migration tool can connect from your laptop
+  # After migration, you can restrict this via firewall rules
+  public_network_access_enabled = true
+
+  tags = {
+    Project = "wingtradebot"
+    Env     = "production"
+  }
+}
+
+resource "azurerm_postgresql_flexible_server_database" "trading" {
+  name      = "wingtradebot"
+  server_id = azurerm_postgresql_flexible_server.trading.id
+  charset   = "UTF8"
+  collation = "en_US.utf8"
+}
+
+# ─── Firewall Rule — Allow migration tool from your local IP ──────────────────
+# Replace migration_tool_ip with your actual public IP: curl ifconfig.me
+resource "azurerm_postgresql_flexible_server_firewall_rule" "migration_tool" {
+  name             = "migration-tool-local"
+  server_id        = azurerm_postgresql_flexible_server.trading.id
+  start_ip_address = var.migration_tool_start_ip
+  end_ip_address   = var.migration_tool_end_ip
+}
+
+# ─── Firewall Rule — Allow Azure VM ──────────────────────────────────────────
+resource "azurerm_postgresql_flexible_server_firewall_rule" "vm" {
+  name             = "wingtradebot-vm"
+  server_id        = azurerm_postgresql_flexible_server.trading.id
+  start_ip_address = azurerm_public_ip.trading.ip_address
+  end_ip_address   = azurerm_public_ip.trading.ip_address
+}

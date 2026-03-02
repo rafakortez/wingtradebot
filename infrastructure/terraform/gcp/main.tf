@@ -86,3 +86,55 @@ resource "google_compute_instance" "trading" {
     ssh-keys = "root:${var.ssh_public_key}"
   }
 }
+
+# ─── Cloud SQL PostgreSQL ─────────────────────────────────────────────────────
+# Uses free trial credits ($300). Smallest instance: db-f1-micro (0.6 GB RAM).
+# NOTE: Cloud SQL has no permanent free tier — it uses your $300 trial credits.
+# After credits are exhausted, db-f1-micro costs ~$7/month.
+resource "google_sql_database_instance" "trading" {
+  name             = "wingtradebot-db"
+  database_version = "POSTGRES_16"
+  region           = var.region
+
+  settings {
+    tier              = "db-f1-micro"  # Smallest available, uses trial credits
+    availability_type = "ZONAL"        # Single zone (cheaper than REGIONAL)
+    disk_size         = 10             # GB minimum
+    disk_type         = "PD_SSD"
+
+    ip_configuration {
+      ipv4_enabled = true  # Public IP so migration tool can connect
+
+      # Allow the VM to connect
+      authorized_networks {
+        name  = "wingtradebot-vm"
+        value = "${google_compute_address.trading.address}/32"
+      }
+
+      # Allow your local machine to connect for migration
+      # Replace with your actual IP: curl ifconfig.me
+      authorized_networks {
+        name  = "migration-tool-local"
+        value = var.migration_tool_ip
+      }
+    }
+
+    backup_configuration {
+      enabled = true
+    }
+  }
+
+  # Prevent accidental deletion
+  deletion_protection = false
+}
+
+resource "google_sql_database" "trading" {
+  name     = "wingtradebot"
+  instance = google_sql_database_instance.trading.name
+}
+
+resource "google_sql_user" "trading" {
+  name     = var.db_username
+  instance = google_sql_database_instance.trading.name
+  password = var.db_password
+}

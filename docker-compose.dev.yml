@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  wingtradebot-core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "443:443"
+      - "80:80"
+    environment:
+      - FASTAPI_URL=http://fastapi_proxy:8000
+      - SIMPLEFX_API_KEY=${SIMPLEFX_API_KEY}
+      - SIMPLEFX_API_SECRET=${SIMPLEFX_API_SECRET}
+    volumes:
+      - ./ssl:/app/ssl:ro
+      - ./sfx_historical_orders.db:/app/sfx_historical_orders.db
+    depends_on:
+      - fastapi_proxy
+
+  fastapi_proxy:
+    build:
+      context: .
+      dockerfile: ./apps/fastapi_service/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - SIMPLEFX_API_KEY=${SIMPLEFX_API_KEY}
+      - SIMPLEFX_API_SECRET=${SIMPLEFX_API_SECRET}
+    volumes:
+      - ./sfx_historical_orders.db:/app/sfx_historical_orders.db

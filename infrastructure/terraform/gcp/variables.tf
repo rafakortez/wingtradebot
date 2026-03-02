@@ -36,3 +36,27 @@ variable "ssh_port" {
   type        = number
   default     = 2277
 }
+
+# ─── Cloud SQL Variables ──────────────────────────────────────────────────────
+
+variable "db_username" {
+  description = "PostgreSQL username for Cloud SQL"
+  type        = string
+  default     = "wingbot"
+}
+
+variable "db_password" {
+  description = "PostgreSQL password for Cloud SQL"
+  type        = string
+  sensitive   = true
+}
+
+variable "migration_tool_ip" {
+  description = <<-EOT
+    Your local machine's public IP in CIDR notation (e.g. "203.0.113.5/32").
+    Used to allow the db_migrator.py tool to connect to Cloud SQL from your laptop.
+    Find your IP: curl ifconfig.me
+  EOT
+  type    = string
+  default = "0.0.0.0/0" # Restrict this to your actual IP for security
+}

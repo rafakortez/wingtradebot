@@ -1,46 +1,30 @@
 ---
-# Role: wingtradebot — Deploy the trading bot application
+# Role: wingtradebot — Deploy using Docker containers from GHCR
 
-# ─── Directory and Source Code ─────────────────────────────────────────────
+# ─── Directory Setup ─────────────────────────────────────────────────────────────
 - name: Ensure app directory exists
   file:
     path: "{{ app_dir }}"
     state: directory
     mode: "0755"
 
-- name: Copy project files to server
-  synchronize:
-    src: "{{ playbook_dir }}/../../"
-    dest: "{{ app_dir }}/"
-    rsync_opts:
-      - "--exclude=.git"
-      - "--exclude=node_modules"
-      - "--exclude=dist"
-      - "--exclude=.env"
-      - "--exclude=infrastructure"
-
-- name: Install npm dependencies
-  npm:
-    path: "{{ app_dir }}"
-    state: present
-    production: yes
-
-- name: Build TypeScript source
-  command: npm run build
-  args:
-    chdir: "{{ app_dir }}"
-  environment:
-    NODE_OPTIONS: "--max-old-space-size=512"
-
-# ─── Environment Configuration ─────────────────────────────────────────────
+# ─── Environment Configuration ─────────────────────────────────────────────────
 - name: Create .env file from template
   template:
     src: env.j2
     dest: "{{ app_dir }}/.env"
-    mode: "0600"  # Read/write only for root
+    mode: "0600"
   notify: Restart wingtradebot
 
-# ─── SSL Setup ─────────────────────────────────────────────────────────────
+# ─── Docker Compose Setup ───────────────────────────────────────────────────────
+- name: Create docker-compose.yml for the app
+  template:
+    src: docker-compose.j2
+    dest: "{{ app_dir }}/docker-compose.yml"
+    mode: "0644"
+  notify: Restart wingtradebot
+
+# ─── SSL Setup ─────────────────────────────────────────────────────────────────
 - name: Create app ssl directory
   file:
     path: "{{ app_dir }}/ssl"
@@ -63,30 +47,35 @@
   ignore_errors: true
   notify: Restart wingtradebot
 
-# ─── Systemd Service ───────────────────────────────────────────────────────
-- name: Install systemd service file
-  template:
-    src: wingtradebot.service.j2
-    dest: /etc/systemd/system/wingtradebot.service
-    mode: "0644"
-  notify:
-    - Reload systemd
-    - Restart wingtradebot
+# ─── Pull Docker Images ─────────────────────────────────────────────────────────
+- name: Pull latest Docker image
+  community.docker.docker_image:
+    name: "{{ docker_image_core }}"
+    tag: latest
+    source: pull
+  ignore_errors: yes
 
-- name: Enable and start wingtradebot service
-  systemd:
-    name: wingtradebot
-    enabled: true
-    state: started
-    daemon_reload: true
+- name: Pull FastAPI Docker image
+  community.docker.docker_image:
+    name: "{{ docker_image_fastapi }}"
+    tag: latest
+    source: pull
+  ignore_errors: yes
 
-# ─── Handlers ──────────────────────────────────────────────────────────────
+# ─── Start Containers ───────────────────────────────────────────────────────────
+- name: Start containers using docker-compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_dir }}"
+    files:
+      - docker-compose.yml
+    state: present
+  notify: Restart wingtradebot
+
+# ─── Handlers ───────────────────────────────────────────────────────────────────
 handlers:
-  - name: Reload systemd
-    systemd:
-      daemon_reload: true
-
   - name: Restart wingtradebot
-    systemd:
-      name: wingtradebot
+    community.docker.docker_compose_v2:
+      project_src: "{{ app_dir }}"
+      files:
+        - docker-compose.yml
       state: restarted

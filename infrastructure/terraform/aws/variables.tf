@@ -28,9 +28,9 @@ variable "region" {
 }
 
 variable "instance_type" {
-  description = "Tipo de instância EC2 (t3.small ≈ 1 vCPU, 2 GB RAM)"
+  description = "EC2 instance type (t3.small = 1 vCPU, 2 GB RAM — matches your live server)"
   type        = string
-  default     = "t3.small"
+  default     = "t3.small"  # 1 vCPU, 2 GB RAM — same as your live server
 }
 
 variable "ami_id" {
@@ -43,4 +43,38 @@ variable "ssh_port" {
   description = "Porta SSH customizada (diferente de 22)"
   type        = number
   default     = 2277
+}
+
+# ─── RDS PostgreSQL Variables ─────────────────────────────────────────────────
+
+variable "db_username" {
+  description = "PostgreSQL master username for RDS"
+  type        = string
+  default     = "wingbot"
+}
+
+variable "db_password" {
+  description = "PostgreSQL master password for RDS (min 8 chars, no @/)"
+  type        = string
+  sensitive   = true
+}
+
+variable "db_publicly_accessible" {
+  description = <<-EOT
+    Allow RDS to be accessed from the public internet.
+    Set to true during initial data migration from your laptop.
+    Set to false after migration is complete (more secure).
+  EOT
+  type    = bool
+  default = true
+}
+
+variable "migration_tool_ip" {
+  description = <<-EOT
+    Your local machine's public IP in CIDR notation (e.g. "203.0.113.5/32").
+    Used to allow the db_migrator.py tool to connect to RDS from your laptop.
+    Find your IP: curl ifconfig.me
+  EOT
+  type    = string
+  default = "0.0.0.0/0" # Restrict this to your actual IP for security
 }

@@ -1,0 +1,6 @@
+# WingTradeBot — Migration Tool Dependencies
+# Install: pip install -r tools/requirements.txt
+
+paramiko==3.4.0        # SSH/SFTP client for downloading SQLite from live server
+psycopg2-binary==2.9.9 # PostgreSQL adapter (binary = no compilation needed)
+sshtunnel==0.4.1       # SSH tunnel for connecting to private DBs
