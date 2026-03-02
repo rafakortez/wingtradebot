@@ -105,21 +105,31 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/wingtradebot-fastapi:latest
             ghcr.io/${{ github.repository_owner }}/wingtradebot-fastapi:${{ github.sha }}
 
-  # ─── Job 3: Terraform Plan (validate IaC on every PR) ──────────────────────
+  # ─── Job 3: Terraform Plan (validate IaC on every PR and push to main) ──────────────────────
   # LEARNING: This job shows how CI/CD validates infrastructure changes.
   # Secrets are stored in GitHub Settings > Secrets and Variables > Actions.
   # They map to Terraform variables via TF_VAR_* environment variables.
   # NO terraform.tfvars file is needed — secrets come from GitHub Secrets.
   terraform_validate:
-    name: Validate Terraform (AWS)
+    name: Validate Terraform (${{ matrix.cloud }})
     needs: build-and-test
     runs-on: ubuntu-latest
-    # Only run when infrastructure files change
-    if: github.event_name == 'pull_request'
+    # Run on PRs and on push to main
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - cloud: aws
+            dir: infrastructure/terraform/aws
+          - cloud: gcp
+            dir: infrastructure/terraform/gcp
+          - cloud: azure
+            dir: infrastructure/terraform/azure
 
     defaults:
       run:
-        working-directory: infrastructure/terraform/aws
+        working-directory: ${{ matrix.dir }}
 
     steps:
       - name: Checkout Code
@@ -136,7 +146,7 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
         # LEARNING: 'terraform validate' checks syntax and internal consistency.
-        # It does NOT connect to AWS — no credentials needed for this step.
+        # It does NOT connect to the cloud provider — no credentials needed for this step.
 
       # LEARNING: 'terraform plan' DOES connect to AWS and shows what would change.
       # Credentials are injected via TF_VAR_* environment variables from GitHub Secrets.
